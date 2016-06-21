@@ -5,6 +5,7 @@ import com.taskManager.services.AuthenticationService;
 import com.taskManager.services.modelService.UserService;
 import com.taskManager.viewModels.account.AccountLoginVM;
 import com.taskManager.viewModels.account.AccountRegisterVM;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -61,16 +62,14 @@ public class AccountController {
             return new ModelAndView("account/register", "model", model);
         }
 
-        User user = new User();
+        ModelMapper modelMapper = new ModelMapper();
+        User user = modelMapper.map(model, User.class);
 
         if (userService.isUserExist(user)) {
             result.reject("model", "User already exists!");
 
             return new ModelAndView("account/register", "model", model);
         }
-
-        user.setUsername(model.getUsername());
-        user.setPassword(model.getPassword());
 
         userService.save(user);
 

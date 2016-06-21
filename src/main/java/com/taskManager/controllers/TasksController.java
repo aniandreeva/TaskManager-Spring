@@ -5,6 +5,7 @@ import com.taskManager.services.*;
 import com.taskManager.services.modelService.TaskService;
 import com.taskManager.viewModels.tasks.TasksEditVM;
 import com.taskManager.viewModels.tasks.TasksListVM;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -32,7 +33,6 @@ public class TasksController {
 
     @RequestMapping(value = "tasks/edit", method = RequestMethod.GET)
     public ModelAndView edit(Integer id) throws IllegalAccessException, InstantiationException {
-        TasksEditVM model= new TasksEditVM();
 
         Task task;
 
@@ -50,10 +50,8 @@ public class TasksController {
             }
         }
 
-        model.setId(task.getId());
-        model.setTitle(task.getTitle());
-        model.setContent(task.getContent());
-        model.setStatus(task.getStatus());
+        ModelMapper modelMapper = new ModelMapper();
+        TasksEditVM model= modelMapper.map(task, TasksEditVM.class);
 
         return new ModelAndView("tasks/edit", "model", task);
     }
@@ -65,20 +63,8 @@ public class TasksController {
         }
 
         model.setUserId(AuthenticationService.getLoggedUser().getId());
-        Task task;
-
-        if (model.getId()==0){
-            task= new Task();
-        }
-        else{
-            task=taskService.getById(model.getId());
-        }
-
-        task.setId(model.getId());
-        task.setTitle(model.getTitle());
-        task.setContent(model.getContent());
-        task.setStatus(model.getStatus());
-        task.setUser(AuthenticationService.getLoggedUser());
+        ModelMapper modelMapper = new ModelMapper();
+        Task task = modelMapper.map(model, Task.class);
 
         taskService.save(task);
 
